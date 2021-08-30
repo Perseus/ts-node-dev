@@ -246,7 +246,10 @@ export const runDev = (
       return
     }
     log.debug('Removing all watchers from files')
-    //watcher.removeAll()ya
+
+    if (cfg.noRestart) {
+      return
+    }
 
     watcher.close()
     watcher = initWatcher()

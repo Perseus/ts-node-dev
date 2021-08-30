@@ -24,7 +24,8 @@ export type Config = {
   respawn: boolean
   debug: boolean
   quiet: boolean
-  extensions: Record<string, string>
+  extensions: Record<string, string>,
+  noRestart: boolean,
 }
 
 export const makeCfg = (main: string, opts: Partial<Options>): Config => {
@@ -42,6 +43,7 @@ export const makeCfg = (main: string, opts: Partial<Options>): Config => {
     if (opts.respawn) c.respawn = true
     if (opts.notify === false) c.notify = false
     if (opts.clear || opts.cls) c.clear = true
+    if (opts.noRestart) c.noRestart = true
     c.fork = opts.fork
   }
 
@@ -66,5 +68,6 @@ export const makeCfg = (main: string, opts: Partial<Options>): Config => {
     debug: !!opts.debug,
     quiet: !!opts.quiet,
     extensions: c.extensions,
+    noRestart: c.noRestart,
   }
 }

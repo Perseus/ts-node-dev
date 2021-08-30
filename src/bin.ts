@@ -22,6 +22,7 @@ const tsNodeFlags = {
     'skip-ignore',
     'compiler-host',
     'script-mode',
+    'noRestart',
   ],
 
   string: [
@@ -64,6 +65,7 @@ type TSNodeOptions = {
   compiler: string
   'compiler-host': boolean
   'ignore-diagnostics': string
+  noRestart: string
 }
 
 const devFlags = {
@@ -84,6 +86,7 @@ const devFlags = {
     'error-recompile',
     'quiet',
     'rs',
+    'noRestart',
   ],
   string: [
     'dir',
