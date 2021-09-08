@@ -251,7 +251,6 @@ export const runDev = (
       let shouldRestart = false;
       if (cfg.restartOnlyForItems) {
         const restartCheck = cfg.restartOnlyForItems.reduce((acc, curr) => {
-          console.log(acc, file.startsWith(curr), curr);
           return acc || file.startsWith(curr);
         }, false);
 
