@@ -31,6 +31,7 @@ const tsNodeFlags = {
     'ignore',
     'ignore-diagnostics',
     'compiler-options',
+    'config',
   ],
 }
 
@@ -65,7 +66,8 @@ type TSNodeOptions = {
   compiler: string
   'compiler-host': boolean
   'ignore-diagnostics': string
-  noRestart: string
+  noRestart: string,
+  config: string,
 }
 
 const devFlags = {
@@ -97,6 +99,7 @@ const devFlags = {
     'debounce',
     'watch',
     'cache-directory',
+    'config'
   ],
 }
 

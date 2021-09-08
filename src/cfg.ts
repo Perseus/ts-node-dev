@@ -26,6 +26,7 @@ export type Config = {
   quiet: boolean
   extensions: Record<string, string>,
   noRestart: boolean,
+  restartOnlyForItems: string[],
 }
 
 export const makeCfg = (main: string, opts: Partial<Options>): Config => {
@@ -47,12 +48,28 @@ export const makeCfg = (main: string, opts: Partial<Options>): Config => {
     c.fork = opts.fork
   }
 
+  let restartOnlyForItems: string[] = []
+  if (opts.config) {
+    const fileContent = fs.readFileSync(opts.config).toString()
+    const config = JSON.parse(fileContent)
+
+    if (config.restartForFiles && Array.isArray(config.restartForFiles))  {
+      restartOnlyForItems.push(...config.restartForFiles);
+      restartOnlyForItems = restartOnlyForItems.map(resolvePath);
+
+      c.restartOnlyForItems = restartOnlyForItems;
+    }
+  }
+
+  opts.debug && console.log('Restart only for:', restartOnlyForItems);
+
   const ignoreWatchItems: string[] = opts['ignore-watch']
     ? ([] as string[])
         .concat(opts['ignore-watch'] as string)
         .map((_) => _.trim())
     : []
   const ignoreWatch: string[] = ignoreWatchItems.concat(c.ignore || [])
+  
   opts.debug && console.log('Ignore watch:', ignoreWatch)
   const ignore = ignoreWatch.concat(ignoreWatch.map(resolvePath))
   return {
@@ -69,5 +86,6 @@ export const makeCfg = (main: string, opts: Partial<Options>): Config => {
     quiet: !!opts.quiet,
     extensions: c.extensions,
     noRestart: c.noRestart,
+    restartOnlyForItems: c.restartOnlyForItems,
   }
 }

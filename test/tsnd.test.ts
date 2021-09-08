@@ -5,6 +5,7 @@ import { spawnTsNodeDev, scriptsDir, tmpDir, turnOnOutput } from './spawn'
 import fs from 'fs-extra'
 import { join } from 'path'
 import touch = require('touch')
+import { makeCfg } from '../src/cfg';
 
 if (process.argv.slice(2).includes('--output')) {
   turnOnOutput()
@@ -52,6 +53,26 @@ describe('ts-node-dev', function () {
     await replaceText('dep.ts', 'v2', 'v1')
   })
 
+  it('should not restart on file change if --noRestart flag is passed', async() => {
+    const ps = spawnTsNodeDev('--noRestart --respawn --poll simple.ts');
+    await ps.waitForLine(/v1/);
+
+    setTimeout(() => replaceText('dep.ts', 'v1', 'v2'), 250);
+    
+    try {
+      await Promise.race([
+        ps.waitForLine(/v2/),
+        new Promise((resolve, reject) => setTimeout(reject, 2000))
+      ]);
+      t.fail('Server was restarted');
+    } catch (err) {
+      t.ok(true, 'Server not restarted.');
+    }
+    await ps.exit()
+
+    await replaceText('dep.ts', 'v2', 'v1');
+
+  });
   it('allow watch arbitrary folder/file', async () => {
     const ps = spawnTsNodeDev('--respawn --watch folder,folder2 simple.ts')
     await ps.waitForLine(/v1/)
@@ -361,4 +382,15 @@ describe('ts-node-dev', function () {
     const list = fs.readdirSync(cacheDir)
     t.ok(list[0] === 'compiled', '"compiled" dir is there')
   })
+
+  describe('ts-node-dev.json', () => {
+    it.only('restarts on changes to files given in the ts-node-dev.json passed through the --config flag', async() => {
+      const configPath = join(scriptsDir, 'ts-node-dev.json');
+      const ps = spawnTsNodeDev(`--noRestart --config=${configPath} --respawn --poll simple.ts`)
+      await ps.waitForLine(/v1/)
+      setTimeout(() => replaceText('restart-only.ts', 'v1', 'v2'), 250)
+      await ps.waitForLine(/v2/)
+      t.ok(true, 'Changed code version applied.')
+    });
+  });
 })

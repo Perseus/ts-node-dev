@@ -248,7 +248,19 @@ export const runDev = (
     log.debug('Removing all watchers from files')
 
     if (cfg.noRestart) {
-      return
+      let shouldRestart = false;
+      if (cfg.restartOnlyForItems) {
+        const restartCheck = cfg.restartOnlyForItems.reduce((acc, curr) => {
+          console.log(acc, file.startsWith(curr), curr);
+          return acc || file.startsWith(curr);
+        }, false);
+
+        shouldRestart = restartCheck;
+      }
+
+      if (!shouldRestart) {
+        return
+      }
     }
 
     watcher.close()
